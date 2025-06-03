@@ -1,37 +1,55 @@
 const express = require("express");
 const puppeteer = require('puppeteer');
 const cors = require("cors");
-const path = require("path");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
-// app.use(express.static(path.join(__dirname, "../frontend")));
 
 app.post("/screenshot", async (req, res) => {
-  const browser = await puppeteer.launch({
-    headless: "new",
-    args: ["--no-sandbox",
-       "--disable-setuid-sandbox",  
-      "--disable-dev-shm-usage", // This helps avoid issues with /dev/shm 
-    "--single-process" // This may be needed for Render's environment 
-    ],executablePath: process.env.CHROMIUM_PATH || '/usr/bin/google-chrome'
-  });
-  const page = await browser.newPage();
-
-  await page.goto("https://web-frontend-rosy-mu.vercel.app", { waitUntil: "networkidle0" });
-   // ✅ Wait extra time to ensure all fonts, styles, images are rendered
-//   await page.waitForTimeout(2000); // 2 seconds – adjust as needed
-  const screenshot = await page.screenshot({ fullPage: true });
-
-  await browser.close();
-
-  res.set({
-    "Content-Type": "image/png",
-    "Content-Disposition": "attachment; filename=infographic_screenshot.png",
-  });
-  res.send(screenshot);
+  let browser;
+  try {
+    browser = await puppeteer.launch({
+      headless: "new",
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-gpu",
+        "--disable-web-security",
+        "--disable-features=VizDisplayCompositor"
+      ]
+    });
+    
+    const page = await browser.newPage();
+    await page.goto("https://web-frontend-rosy-mu.vercel.app", { 
+      waitUntil: "networkidle0",
+      timeout: 30000
+    });
+    
+    // Wait for content to load
+    await page.waitForTimeout(2000);
+    
+    const screenshot = await page.screenshot({ 
+      fullPage: true,
+      type: 'png'
+    });
+    
+    res.set({
+      "Content-Type": "image/png",
+      "Content-Disposition": "attachment; filename=infographic_screenshot.png",
+    });
+    res.send(screenshot);
+    
+  } catch (error) {
+    console.error('Screenshot error:', error);
+    res.status(500).json({ error: 'Failed to take screenshot' });
+  } finally {
+    if (browser) {
+      await browser.close();
+    }
+  }
 });
 
 app.listen(PORT, () => {
