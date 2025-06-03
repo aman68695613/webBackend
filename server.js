@@ -16,7 +16,7 @@ app.post("/screenshot", async (req, res) => {
   });
   const page = await browser.newPage();
 
-  await page.goto("https://web-frontend-rosy-mu.vercel.app/", { waitUntil: "networkidle0" });
+  await page.goto("https://web-frontend-rosy-mu.vercel.app", { waitUntil: "networkidle0" });
    // ✅ Wait extra time to ensure all fonts, styles, images are rendered
 //   await page.waitForTimeout(2000); // 2 seconds – adjust as needed
   const screenshot = await page.screenshot({ fullPage: true });
