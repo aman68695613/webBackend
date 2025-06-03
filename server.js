@@ -1,5 +1,5 @@
 const express = require("express");
-const puppeteer = require("puppeteer");
+const puppeteer = require('puppeteer');
 const cors = require("cors");
 const path = require("path");
 
@@ -12,7 +12,11 @@ app.use(cors());
 app.post("/screenshot", async (req, res) => {
   const browser = await puppeteer.launch({
     headless: "new",
-    args: ["--no-sandbox", "--disable-setuid-sandbox"]
+    args: ["--no-sandbox",
+       "--disable-setuid-sandbox",  
+      "--disable-dev-shm-usage", // This helps avoid issues with /dev/shm 
+    "--single-process" // This may be needed for Render's environment 
+    ],executablePath: process.env.CHROMIUM_PATH || '/usr/bin/chromium-browser'
   });
   const page = await browser.newPage();
 
