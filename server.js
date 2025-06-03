@@ -16,7 +16,7 @@ app.post("/screenshot", async (req, res) => {
        "--disable-setuid-sandbox",  
       "--disable-dev-shm-usage", // This helps avoid issues with /dev/shm 
     "--single-process" // This may be needed for Render's environment 
-    ],executablePath: process.env.CHROMIUM_PATH || '/usr/bin/chromium-browser'
+    ],executablePath: process.env.CHROMIUM_PATH || '/usr/bin/google-chrome'
   });
   const page = await browser.newPage();
 
