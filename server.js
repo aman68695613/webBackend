@@ -33,7 +33,7 @@ app.post("/screenshot", async (req, res) => {
     
     const screenshot = await page.screenshot({ 
       fullPage: true,
-      type: 'png'
+
     });
     
     res.set({
